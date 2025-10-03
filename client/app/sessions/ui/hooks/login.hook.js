@@ -1,6 +1,13 @@
 import { useState, useTransition, useMemo } from "react";
+import { FetchHTTPProvider, JSONAPIConnector } from "@schorts/shared-kernel";
+
+import EmailPasswordAuthProvider from "../../infrastructure/auth-providers/email-password-auth-provider";
 
 import UsernameValue from "../../domain/value-objects/username-value";
+
+const fetchHTTPProvider = new FetchHTTPProvider();
+const jSONAPIConnector = new JSONAPIConnector(fetchHTTPProvider);
+const emailPasswordAuthProvider = new EmailPasswordAuthProvider(jSONAPIConnector);
 
 export default function useLogin() {
   const [username, setUsername] = useState("");
@@ -23,11 +30,13 @@ export default function useLogin() {
     return validUsername && validPassword;
   }, [validUsername, validPassword]);
 
-  const login = async (event) => {
+  const login = (event) => {
     event.preventDefault();
 
-    startLoading(() => {
-
+    startLoading(async () => {
+      try {
+        await emailPasswordAuthProvider.authenticate(username, password);
+      } catch (error) {}
     });
   };
 

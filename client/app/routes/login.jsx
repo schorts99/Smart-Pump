@@ -1,4 +1,4 @@
-import LoginPage from "../login/ui/pages/login";
+import LoginPage from "../sessions/ui/pages/login";
 
 export function meta({}) {
   return [
