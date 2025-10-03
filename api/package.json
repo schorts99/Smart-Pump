@@ -1,0 +1,24 @@
+{
+  "name": "@smart-pump/api",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/schorts99/Smart-Pump.git"
+  },
+  "author": {
+    "name": "Jorge Castillo",
+    "email": "schorts@outlook.com",
+    "url": "https://schorts.netlify.app"
+  },
+  "bugs": {
+    "url": "https://github.com/schorts99/Smart-Pump/issues"
+  },
+  "homepage": "https://github.com/schorts99/Smart-Pump#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
