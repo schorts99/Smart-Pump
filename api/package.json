@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node ./index.js"
+    "start": "node ./src/index.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,12 @@
   },
   "homepage": "https://github.com/schorts99/Smart-Pump#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "@schorts/shared-kernel": "^1.2.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "lowdb": "^7.0.1"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.3"
   }
 }
