@@ -2,6 +2,7 @@ import EmailPasswordAuthProvider from "../../../../modules/app/sessions/infrastr
 import UserLowDBDAO from "../../../../modules/app/users/infrastructure/daos/user-lowdb-dao/index.js";
 
 import InvalidCredentials from "../../../../modules/app/sessions/domain/exceptions/invalid-credentials/index.js";
+import AlreadyAuthenticated from "../../../../modules/app/sessions/domain/exceptions/already-authenticated/index.js";
 
 export default class SessionsController {
   #emailPasswordAuthProvider;
@@ -11,6 +12,7 @@ export default class SessionsController {
 
     this.#emailPasswordAuthProvider = new EmailPasswordAuthProvider(userLowDBDAO);;
     this.create = this.create.bind(this);
+    this.get = this.get.bind(this);
   }
 
   async create(req, res) {
@@ -38,6 +40,16 @@ export default class SessionsController {
             detail: "Please verify your credentials."
           },
         ]);
+      } else if (error instanceof AlreadyAuthenticated) {
+        res.status(400);
+        res.send([
+          {
+            status: "400",
+            code: "ALREADY_AUTHENTICATED",
+            title: "Already Authenticated",
+            detail: "You already have a session."
+          },
+        ]);
       } else {
         res.status(500);
         res.send([
@@ -49,6 +61,47 @@ export default class SessionsController {
           },
         ]);
       }
+    }
+  }
+
+  async get(req, res) {
+    try {
+      res.status(200);
+
+      const beaderToken = req.headers.authorization;
+
+      if (!beaderToken) {
+        return res.send({
+          data: {
+            type: "sessions",
+            attributes: {
+              active: false,
+            },
+          },
+        });
+      }
+
+      const token = beaderToken.split(" ")[1];
+      const isAuthenticated = await this.#emailPasswordAuthProvider.isAuthenticated(token);
+
+      res.send({
+        data: {
+          type: "sessions",
+          attributes: {
+            active: isAuthenticated,
+          },
+        },
+      });
+    } catch (error) {
+      res.status(500);
+      res.send([
+        {
+          status: "500",
+          code: "INTERNAL_SERVER_ERROR",
+          title: "Internal Server Error",
+          detail: "Please try again later."
+        },
+      ]);
     }
   }
 }

@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 
 import UserByEmailPasswordCriteria from "../../../domain/criterias/user-by-email-password-criteria/index.js";
 import InvalidCredentials from "../../../domain/exceptions/invalid-credentials/index.js";
+import AlreadyAuthenticated from "../../../domain/exceptions/already-authenticated/index.js";
 
 export default class EmailPasswordAuthProvider {
   #usersLowDBDAO;
@@ -11,6 +12,10 @@ export default class EmailPasswordAuthProvider {
   }
 
   async authenticate(email, password) {
+    if (await this.isAuthenticated) {
+      throw new AlreadyAuthenticated();
+    }
+
     const userByEmailPasswordCriteria = new UserByEmailPasswordCriteria(
       email, password,
     )
@@ -26,13 +31,21 @@ export default class EmailPasswordAuthProvider {
       },
       process.env.SECRET_KEY,
       {
-        expiresIn: "1h",
+        expiresIn: "15m",
       },
     );
   }
 
-  async isAuthenticated(token) {
-    // Verify Token
+  isAuthenticated(token) {
+    return new Promise((resolve) => {
+      jwt.verify(token, process.env.SECRET_KEY, (err) => {
+        if (err) {
+          return resolve(false);
+        }
+
+        resolve(true);
+      });
+    });
   }
 
   async currentUser(token) {

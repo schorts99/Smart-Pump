@@ -5,6 +5,7 @@ import SessionsController from "../../controllers/express/v1/sessions-controller
 const router = express.Router();
 const sessionsController = new SessionsController();
 
-router.post("/sessions", sessionsController.create)
+router.post("/sessions", sessionsController.create);
+router.get("/sessions", sessionsController.get);
 
 export default router;
