@@ -45,8 +45,6 @@ I choose to implement the DAO pattern because if in the future is neccesary to c
 
 Same with the Criteria, we're not tied to a specific query way. We only have to create the query executor for the new database implementation and everything else is untouched.
 
-Then we create a `JWT` with the user ID and mark it as `httpOnly` to prevent that any malicious `JavaScript` can access to it.
-
 Auth validations we're at application level to easily migrate if needed. Of this way the application services remain untouched even if the express part is replaced by anything else like nextjs, nest or any other stuff.
 
 Middleware only verifies the token presence.
@@ -65,15 +63,14 @@ We're introducing API url and versioning since the beggining through env variabl
 
 #### Login
 
-To authenticate the user, we're requesting the API a `JWT` that only will be available to the API.
+To authenticate the user, we're requesting the API a `JWT`.
 
 ## Future Considerations
 
 Add a dependency container to do the dependency injection through the container and be able to have for example a singleton for the AuthProviders and only request for auth once.
-
 Not implemented directly to the possible change of the piece.
 
-`JSONAPIConnector` will handle errors better in future releases.
+`JSONAPIConnector` will handle errors better in future releases, currently it throws an HTTPException that doesn't contain the jsonapi error list.
 
 #### Authentication
 
@@ -81,7 +78,7 @@ We're skipping some security issues due to the current data structure.
 
 Skipped the refresh token feature.
 
-**Notes:** Ann user with `isActive = false` should be able to login? maybe it only indicates that the user has not being logged for a long time.
+**Notes:** An user with `isActive = false` should be able to login? maybe it only indicates that the user has not being logged for a long time.
 
 #### Profile
 
