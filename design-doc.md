@@ -7,8 +7,7 @@
 1. [Links](#links)
 2. [Summary](#summary)
 3. [Detailed Design](#detailed-design)
-4. [Testing and Validation]()
-5. [Future Considerations](#future-considerations)
+4. [Future Considerations](#future-considerations)
 
 ## Links
 
