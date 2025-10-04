@@ -12,6 +12,7 @@ export default function LoginPage() {
     validForm,
     loading,
     login,
+    error,
   } = useLogin();
 
   return (
@@ -53,6 +54,9 @@ export default function LoginPage() {
                   required
                   disabled={loading}
                 />
+                {error && (
+                  <small className="text-red-600 mt-2">{error}</small>
+                )}
               </div>
 
               <div className="text-center">
