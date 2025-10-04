@@ -6,7 +6,12 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { useContext } from "react";
 import "./app.css";
+import logo from "../../assets/logo.png";
+
+import AuthContext, { AuthProvider } from "./sessions/ui/contexts/auth-context";
+import { CurrentUserProvider } from "./sessions/ui/contexts/current-user-context";
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -31,7 +36,11 @@ export function Layout({ children }) {
         <Links />
       </head>
       <body>
-        {children}
+        <AuthProvider>
+          <CurrentUserProvider>
+            {children}
+          </CurrentUserProvider>
+        </AuthProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -39,7 +48,21 @@ export function Layout({ children }) {
   );
 }
 
+function Loader() {
+  return (
+    <div className="h-screen flex w-full justify-center items-center">
+      <img className="w-1/2 md:w-1/4" src={logo} alt="Smart Pump logo" draggable="false" />
+    </div>
+  )
+}
+
 export default function App() {
+  const { loading } = useContext(AuthContext);
+
+  if (loading) {
+    return <Loader />;
+  }
+
   return <Outlet />;
 }
 
