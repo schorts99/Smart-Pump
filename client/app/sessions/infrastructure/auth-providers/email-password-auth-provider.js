@@ -1,32 +1,35 @@
-import { SESSIONS_URL } from "../../../api-routes";
+import { SESSIONS_URL, CURRENT_USER_URL } from "../../../api-routes";
 
 import AlreadyAuthenticated from "../../domain/exceptions/already-authenticated";
 import NotAuthenticated from "../../domain/exceptions/not-authenticated";
+import User from "../../../users/domain/entities/user";
 
 export default class EmailPasswordAuthProvider {
   #jsonAPIConnector;
   static #authChangeListeners = new Set();
-  static #isAuthenticated = false;
+  static #isAuthenticated;
+  static #currentUser;
 
   constructor(jsonAPIConnector) {
     this.#jsonAPIConnector = jsonAPIConnector;
   }
 
   async authenticate(email, password) {
-    if (EmailPasswordAuthProvider.#isAuthenticated) {
+    if (EmailPasswordAuthProvider.#isAuthenticated === true) {
       throw new AlreadyAuthenticated();
     }
 
-    await this.#jsonAPIConnector.create(SESSIONS_URL, {
+    const { data: { attributes: { token } } } = await this.#jsonAPIConnector.create(SESSIONS_URL, {
       type: "sessions",
       attributes: { email, password },
     });
 
+    sessionStorage.setItem("token", token);
     this.#notifyAuthChange(true);
   }
 
   async logout() {
-    if (!EmailPasswordAuthProvider.#isAuthenticated) {
+    if (EmailPasswordAuthProvider.#isAuthenticated !== true) {
       throw new NotAuthenticated();
     }
 
@@ -36,15 +39,35 @@ export default class EmailPasswordAuthProvider {
   }
 
   async isAuthenticated() {
-    return EmailPasswordAuthProvider.#isAuthenticated;
+    if (EmailPasswordAuthProvider.#isAuthenticated !== undefined) {
+      return EmailPasswordAuthProvider.#isAuthenticated;
+    }
+    
+    const { data: { attributes: { active } } } = await this.#jsonAPIConnector.findOne(SESSIONS_URL);
+
+    if (!active && sessionStorage.getItem("token")) {
+      sessionStorage.removeItem("token");
+    }
+
+    this.#notifyAuthChange(active);
+
+    return active;
   }
 
   async currentUser() {
-    if (!EmailPasswordAuthProvider.#isAuthenticated) {
-      return null;
+    if (EmailPasswordAuthProvider.#isAuthenticated === undefined) {
+      if (!(await this.isAuthenticated())) {
+        return null;
+      }
     }
 
-    // TODO: get or set CurrentUser
+    if (EmailPasswordAuthProvider.#currentUser !== undefined) {
+      return EmailPasswordAuthProvider.#currentUser;
+    }
+
+    const { data } = await this.#jsonAPIConnector.findOne(CURRENT_USER_URL);
+
+    return User.fromPrimitives({ id: data.id, ...data.attributes });
   }
 
   onAuthChange(callback) {
