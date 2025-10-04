@@ -2,11 +2,11 @@ import { useContext, useState } from "react";
 import { Menu, User, Wallet, Edit3 } from "lucide-react";
 
 import CurrentUserContext from "../../../sessions/ui/contexts/current-user-context";
-import EditModal from "../../../sessions/ui/components/edit.modal";
+import EditModal from "../components/edit.modal";
 
 export default function ProfilePage() {
   const { currentUser, loading } = useContext(CurrentUserContext);
-  const [editing, setEditing] = useState(true);
+  const [editing, setEditing] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 md:p-4">
@@ -49,6 +49,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   className="cursor-pointer px-8 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition-colors flex items-center space-x-2"
+                  disabled={loading}
                   onClick={() => setEditing(true)}
                 >
                   <Edit3 className="w-5 h-5" />

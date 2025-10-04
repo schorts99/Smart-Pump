@@ -72,7 +72,7 @@ export default class LowdbDAO {
       uow.update(this.#collectionName, record);
     } else {
       const collection = lowDB.data[this.#collectionName];
-      const index = collection.findIndex((r) => r._id === entity.id.value);
+      const index = collection.findIndex((r) => r._id === entity.id);
       collection[index] = record;
 
       await lowDB.write();
@@ -85,10 +85,10 @@ export default class LowdbDAO {
     const lowDB = await JSONFilePreset(this.#databasePath, {});
 
     if (uow) {
-      uow.delete(this.#collectionName, entity.id.value);
+      uow.delete(this.#collectionName, entity.id);
     } else {
       const collection = lowDB.data[this.#collectionName];
-      lowDB.data[this.#collectionName] = collection.filter((r) => r._id !== entity.id.value);
+      lowDB.data[this.#collectionName] = collection.filter((r) => r._id !== entity.id);
 
       await lowDB.write();
     }
