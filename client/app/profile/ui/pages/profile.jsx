@@ -2,11 +2,19 @@ import { useContext, useState } from "react";
 import { Menu, User, Wallet, Edit3 } from "lucide-react";
 
 import CurrentUserContext from "../../../sessions/ui/contexts/current-user-context";
+import AuthContext from "../../../sessions/ui/contexts/auth-context";
 import EditModal from "../components/edit.modal";
 
 export default function ProfilePage() {
-  const { currentUser, loading } = useContext(CurrentUserContext);
+  const { setIsAuth } = useContext(AuthContext);
+  const { currentUser, loading, setCurrentUser } = useContext(CurrentUserContext);
   const [editing, setEditing] = useState(false);
+
+  const logout = async () => {
+    sessionStorage.removeItem("token");
+    setIsAuth(false);
+    setCurrentUser(null);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 md:p-4">
@@ -17,6 +25,7 @@ export default function ProfilePage() {
               <div className="w-32 ml-[40px] h-2 bg-gray-400 rounded" />
             </div>
             <button
+              onClick={logout}
               className="cursor-pointer p-2 hover:bg-slate-400/20 rounded-lg transition-colors"
             >
               <Menu className="w-6 h-6 text-gray-600" />

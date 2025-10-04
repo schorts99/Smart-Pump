@@ -28,16 +28,6 @@ export default class EmailPasswordAuthProvider {
     this.#notifyAuthChange(true);
   }
 
-  async logout() {
-    if (EmailPasswordAuthProvider.#isAuthenticated !== true) {
-      throw new NotAuthenticated();
-    }
-
-    await this.#jsonAPIConnector.delete(SESSIONS_URL);
-
-    this.#notifyAuthChange(false);
-  }
-
   async isAuthenticated() {
     if (EmailPasswordAuthProvider.#isAuthenticated !== undefined) {
       return EmailPasswordAuthProvider.#isAuthenticated;

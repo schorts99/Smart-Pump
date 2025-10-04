@@ -81,7 +81,7 @@ We're skipping some security issues due to the current data structure.
 
 Skipped the refresh token feature.
 
-**Notes:** A `isActive = false` use should be able to login? maybe it only indicates that the user has not being logged for a long time.
+**Notes:** Ann user with `isActive = false` should be able to login? maybe it only indicates that the user has not being logged for a long time.
 
 #### Profile
 
