@@ -10,10 +10,9 @@ export default class SessionsController {
   constructor() {
     const userLowDBDAO = new UserLowDBDAO("../data/users.json");
 
-    this.#authProvider = new EmailPasswordAuthProvider(userLowDBDAO);;
+    this.#authProvider = new EmailPasswordAuthProvider(userLowDBDAO);
     this.create = this.create.bind(this);
     this.get = this.get.bind(this);
-    this.getCurrentUser = this.getCurrentUser.bind(this);
   }
 
   async create(req, res) {
@@ -101,65 +100,6 @@ export default class SessionsController {
         },
       });
     } catch (error) {
-      res.status(500);
-      res.send([
-        {
-          status: "500",
-          code: "INTERNAL_SERVER_ERROR",
-          title: "Internal Server Error",
-          detail: "Please try again later."
-        },
-      ]);
-    }
-  }
-
-  async getCurrentUser(req, res) {
-    try {
-      const bearerToken = req.headers.authorization;
-
-      if (!bearerToken) {
-        res.status(400);
-
-        return res.send([
-          {
-            status: "401",
-            code: "UNAUTHORIZED",
-            title: "Unauthorized",
-            detail: "You need to login."
-          },
-        ]);
-      }
-
-      const token = bearerToken.split(" ")[1];
-      const currentUser = await this.#authProvider.currentUser(token);
-
-      if (!currentUser) {
-        res.status(400);
-
-        return res.send([
-          {
-            status: "401",
-            code: "UNAUTHORIZED",
-            title: "Unauthorized",
-            detail: "You need to login."
-          },
-        ]);
-      }
-
-      const attributes = currentUser.toPrimitives();
-
-      delete attributes["id"];
-      delete attributes["password"];
-
-      res.status(200);
-      res.send({
-        data: {
-          id: currentUser.id,
-          type: "users",
-          attributes,
-        },
-      });
-    } catch(error) {
       res.status(500);
       res.send([
         {

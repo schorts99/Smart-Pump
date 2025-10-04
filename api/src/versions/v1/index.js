@@ -1,12 +1,15 @@
 import express from "express";
 
 import SessionsController from "../../controllers/express/v1/sessions-controller/index.js";
+import UsersController from "../../controllers/express/v1/users-controller/index.js";
 
 const router = express.Router();
 const sessionsController = new SessionsController();
+const usersController = new UsersController();
 
 router.post("/sessions", sessionsController.create);
 router.get("/sessions", sessionsController.get);
-router.get("/sessions/current-user", sessionsController.getCurrentUser);
+
+router.get("/users/current", usersController.getCurrentUser);
 
 export default router;
