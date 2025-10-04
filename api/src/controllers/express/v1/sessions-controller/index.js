@@ -5,20 +5,28 @@ import InvalidCredentials from "../../../../modules/app/sessions/domain/exceptio
 import AlreadyAuthenticated from "../../../../modules/app/sessions/domain/exceptions/already-authenticated/index.js";
 
 export default class SessionsController {
-  #emailPasswordAuthProvider;
+  #authProvider;
 
   constructor() {
     const userLowDBDAO = new UserLowDBDAO("../data/users.json");
 
-    this.#emailPasswordAuthProvider = new EmailPasswordAuthProvider(userLowDBDAO);;
+    this.#authProvider = new EmailPasswordAuthProvider(userLowDBDAO);;
     this.create = this.create.bind(this);
     this.get = this.get.bind(this);
+    this.getCurrentUser = this.getCurrentUser.bind(this);
   }
 
   async create(req, res) {
     try {
+      const bearerToken = req.headers.authorization;
+      let token;
+
+      if (bearerToken) {
+        token = bearerToken.split(" ")[1];
+      }
+
       const { email, password } = req.body.data.attributes;
-      const token = await this.#emailPasswordAuthProvider.authenticate(email, password);
+      token = await this.#authProvider.authenticate(email, password, token);
 
       res.status(201);
       res.send({
@@ -68,9 +76,9 @@ export default class SessionsController {
     try {
       res.status(200);
 
-      const beaderToken = req.headers.authorization;
+      const bearerToken = req.headers.authorization;
 
-      if (!beaderToken) {
+      if (!bearerToken) {
         return res.send({
           data: {
             type: "sessions",
@@ -81,8 +89,8 @@ export default class SessionsController {
         });
       }
 
-      const token = beaderToken.split(" ")[1];
-      const isAuthenticated = await this.#emailPasswordAuthProvider.isAuthenticated(token);
+      const token = bearerToken.split(" ")[1];
+      const isAuthenticated = await this.#authProvider.isAuthenticated(token);
 
       res.send({
         data: {
@@ -93,6 +101,65 @@ export default class SessionsController {
         },
       });
     } catch (error) {
+      res.status(500);
+      res.send([
+        {
+          status: "500",
+          code: "INTERNAL_SERVER_ERROR",
+          title: "Internal Server Error",
+          detail: "Please try again later."
+        },
+      ]);
+    }
+  }
+
+  async getCurrentUser(req, res) {
+    try {
+      const bearerToken = req.headers.authorization;
+
+      if (!bearerToken) {
+        res.status(400);
+
+        return res.send([
+          {
+            status: "401",
+            code: "UNAUTHORIZED",
+            title: "Unauthorized",
+            detail: "You need to login."
+          },
+        ]);
+      }
+
+      const token = bearerToken.split(" ")[1];
+      const currentUser = await this.#authProvider.currentUser(token);
+
+      if (!currentUser) {
+        res.status(400);
+
+        return res.send([
+          {
+            status: "401",
+            code: "UNAUTHORIZED",
+            title: "Unauthorized",
+            detail: "You need to login."
+          },
+        ]);
+      }
+
+      const attributes = currentUser.toPrimitives();
+
+      delete attributes["id"];
+      delete attributes["password"];
+
+      res.status(200);
+      res.send({
+        data: {
+          id: currentUser.id,
+          type: "users",
+          attributes,
+        },
+      });
+    } catch(error) {
       res.status(500);
       res.send([
         {

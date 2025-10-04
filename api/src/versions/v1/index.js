@@ -7,5 +7,6 @@ const sessionsController = new SessionsController();
 
 router.post("/sessions", sessionsController.create);
 router.get("/sessions", sessionsController.get);
+router.get("/sessions/current-user", sessionsController.getCurrentUser);
 
 export default router;

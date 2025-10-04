@@ -11,8 +11,8 @@ export default class EmailPasswordAuthProvider {
     this.#usersLowDBDAO = usersLowDBDAO;
   }
 
-  async authenticate(email, password) {
-    if (await this.isAuthenticated) {
+  async authenticate(email, password, token) {
+    if (await this.isAuthenticated(token)) {
       throw new AlreadyAuthenticated();
     }
 
@@ -49,6 +49,12 @@ export default class EmailPasswordAuthProvider {
   }
 
   async currentUser(token) {
-    // TODO: get or set CurrentUser
+    if (!await (this.isAuthenticated(token))) {
+      return null;
+    }
+
+    const id = jwt.decode(token, { json: true })["id"];
+
+    return this.#usersLowDBDAO.findByID(id);
   }
 }
